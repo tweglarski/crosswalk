@@ -401,7 +401,7 @@ bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
   scoped_refptr<ApplicationData> app_data = LoadApplication(
       unpacked_dir, app_id, ApplicationData::LOCAL_DIRECTORY,
       package->manifest_type(), &error);
-  if (!app_data) {
+  if (!app_data.get()) {
     LOG(ERROR) << "Error during application installation: " << error;
     return false;
   }
@@ -410,7 +410,7 @@ bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
   // inside XWalk.
   xwalk::application::PermissionPolicyManager permission_policy_handler;
   if (!permission_policy_handler.
-      InitApplicationPermission(app_data)) {
+      InitApplicationPermission(app_data.get())) {
     LOG(ERROR) << "Application permission data is invalid";
     return false;
   }
@@ -445,7 +445,7 @@ bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
     return false;
   }
 
-  if (!PlatformInstall(app_data)) {
+  if (!PlatformInstall(app_data.get())) {
     LOG(ERROR) << "Application with id " << app_data->ID()
                << " couldn't be installed due to a platform error";
     storage_->RemoveApplication(app_data->ID());
@@ -508,14 +508,14 @@ bool PackageInstaller::Update(const std::string& app_id,
   scoped_refptr<ApplicationData> new_app_data =
       LoadApplication(unpacked_dir, app_id, ApplicationData::TEMP_DIRECTORY,
                       package->manifest_type(), &error);
-  if (!new_app_data) {
+  if (!new_app_data.get()) {
     LOG(ERROR) << "An error occurred during application updating: " << error;
     return false;
   }
 
   scoped_refptr<ApplicationData> old_app_data =
       storage_->GetApplicationData(app_id);
-  if (!old_app_data) {
+  if (!old_app_data.get()) {
     LOG(INFO) << "Application haven't installed yet: " << app_id;
     return false;
   }
@@ -543,7 +543,7 @@ bool PackageInstaller::Update(const std::string& app_id,
   new_app_data = LoadApplication(
       app_dir, app_id, ApplicationData::LOCAL_DIRECTORY,
       package->manifest_type(), &error);
-  if (!new_app_data) {
+  if (!new_app_data.get()) {
     LOG(ERROR) << "Error during loading new package: " << error;
     base::DeleteFile(app_dir, true);
     base::Move(tmp_dir, app_dir);
@@ -557,7 +557,7 @@ bool PackageInstaller::Update(const std::string& app_id,
     return false;
   }
 
-  if (!PlatformUpdate(new_app_data)) {
+  if (!PlatformUpdate(new_app_data.get())) {
     LOG(ERROR) << "Fail to update application, roll back to the old one.";
     base::DeleteFile(app_dir, true);
     if (!storage_->UpdateApplication(old_app_data)) {
@@ -587,7 +587,7 @@ bool PackageInstaller::Uninstall(const std::string& id) {
   bool result = true;
   scoped_refptr<ApplicationData> app_data =
       storage_->GetApplicationData(app_id);
-  if (!app_data) {
+  if (!app_data.get()) {
     LOG(ERROR) << "Failed to find application with id " << app_id
                << " among the installed ones.";
     result = false;
@@ -609,7 +609,7 @@ bool PackageInstaller::Uninstall(const std::string& id) {
     result = false;
   }
 
-  if (!PlatformUninstall(app_data))
+  if (!PlatformUninstall(app_data.get()))
     result = false;
 
   return result;
