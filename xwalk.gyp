@@ -904,5 +904,8 @@
       }, # target_name: All
     ],  # targets
     }], # OS=="android"
+    ['tizen==1', {
+      'includes': [ 'tizen/widget-manifest-parser/widget-manifest-parser.gyp' ],
+    }],
   ]
 }

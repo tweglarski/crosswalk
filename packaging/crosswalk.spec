@@ -118,6 +118,21 @@ BuildRequires:  pkgconfig(murphy-resource)
 %description
 Crosswalk is an app runtime based on Chromium. It is an open source project started by the Intel Open Source Technology Center (http://www.01.org).
 
+%package -n widget-manifest-parser
+Summary:   Widget manifest parser library
+Requires:  %{name} = %{version}
+
+%description -n widget-manifest-parser
+A library parsing widget configuration
+
+%package -n widget-manifest-parser-devel
+Summary:   Widget manifest parser library header
+Requires:  %{name} = %{version}
+Requires:  widget-manifest-parser = %{version}
+
+%description -n widget-manifest-parser-devel
+A header for library parsing widget configuration
+
 %define _manifestdir %TZ_SYS_RO_PACKAGES
 %define _manifestdir_ro %TZ_SYS_RO_PACKAGE
 %define _desktop_icondir %TZ_SYS_RW_ICONS/default/small
@@ -239,7 +254,7 @@ ${GYP_EXTRA_FLAGS} \
 -Duse_system_yasm=1 \
 -Denable_hidpi=1
 
-ninja %{?_smp_mflags} -C src/out/Release xwalk xwalk_launcher xwalk_application_tools
+ninja %{?_smp_mflags} -C src/out/Release xwalk xwalk_launcher xwalk_application_tools widget-manifest-parser
 
 %install
 # Binaries.
@@ -271,6 +286,13 @@ install -m 0644 -p -D src/out/Release/pnacl/* %{buildroot}%{_libdir}/xwalk/pnacl
 # Register xwalk to the package manager.
 install -m 0644 -p -D %{name}.xml %{buildroot}%{_manifestdir}/%{name}.xml
 install -m 0644 -p -D %{name}.png %{buildroot}%{_desktop_icondir}/%{name}.png
+
+# Widget manifest parser devel
+install -m 0664 -p -D src/xwalk/tizen/widget-manifest-parser/widget-manifest-parser.h %{buildroot}%{_includedir}/widget-manifest-parser/widget-manifest-parser.h
+install -m 0664 -p -D src/xwalk/tizen/widget-manifest-parser/widget-manifest-parser.pc %{buildroot}%{_libdir}/pkgconfig/widget-manifest-parser.pc
+
+# Widget manifest parser
+install -m 0755 -p -D src/out/Release/lib/libwidget-manifest-parser.so %{buildroot}%{_libdir}/libwidget-manifest-parser.so
 
 %post
 mkdir -p %{_desktop_icondir_ro}
@@ -313,3 +335,10 @@ fi
 %{_dbusservicedir}/org.crosswalkproject.Runtime1.service
 %{_systemduserservicedir}/xwalk.service
 %{_datadir}/xwalk/*
+
+%files -n widget-manifest-parser
+%{_libdir}/libwidget-manifest-parser.so
+
+%files -n widget-manifest-parser-devel
+%{_includedir}/widget-manifest-parser/widget-manifest-parser.h
+%{_libdir}/pkgconfig/widget-manifest-parser.pc
