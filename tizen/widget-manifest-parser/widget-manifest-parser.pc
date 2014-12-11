@@ -1,0 +1,11 @@
+prefix=/usr
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: widget-manifest-parser
+Description: Widget manifest parser library
+Version: 0.1
+Requires:
+Libs: -L${libdir} -lwidget-manifest-parser
+Cflags: -I${includedir}/widget-manifest-parser
